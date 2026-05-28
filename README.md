@@ -1,6 +1,6 @@
 # Full-Stack AI-Forward Task Manager (Intern Applied AI Assessment)
 
-A high-performance, low-latency, and secure full-stack Todo List application designed with a **FastAPI** backend, **SQLite** transactional database, and a clean, understated **Vanilla JS/CSS** developer-tool frontend. 
+A high-performance, low-latency, and secure full-stack Todo List application designed with a **FastAPI** backend, **SQLite** transactional database, and a **Vanilla JS/CSS** developer-tool frontend. 
 
 It implements all primary and bonus assignment features, along with applied AI capabilities and security measures.
 
@@ -186,7 +186,16 @@ We use `pytest` for unit and integration testing. Database connections are redir
    - API endpoints (Status codes, payload structural requirements, description clearing updates).
    - Input sanitization logic (Script stripping checks).
    - Rate limiting filters (Checks that the 101st request returns HTTP 429).
+3. **Other**:
+   ```bash
+   # 2. Run specific test files
+   pytest tests/test_api.py -v
+   pytest tests/test_crud.py -v
 
+   # 3. Generate a coverage report (requires pytest-cov)
+   pip install pytest-cov
+   pytest --cov=app tests/ -v
+   ```
 ---
 
 ## Technical Summary
@@ -214,3 +223,13 @@ We use `pytest` for unit and integration testing. Database connections are redir
 ### 4. Applied AI Integration
 * **Subtask Suggestion Generator**: Leverages the official Google GenAI (`google-genai`) SDK using the fast `gemini-2.5-flash` model. It compiles task details and generates 3 to 5 logical subtask suggestions returned as a structured JSON list.
 * **Dynamic Feature Visibility**: If no `GEMINI_API_KEY` is present, the frontend dynamically queries `/api/ai/config` on load to hide the AI components. This removes non-functional buttons from the interface entirely, keeping the application workspace clean.
+
+### 5. Architectural Weak Points & Mitigation Plan
+* **Stateful Rate Limiting**: The sliding-window rate limiter stores request timestamps in-memory. In a distributed, multi-node cloud environment, clients could bypass limits by hit-routing across different nodes. *Mitigation:* Relocate the rate-limiting state to a centralized Redis instance using standard token-bucket libraries.
+* **Synchronous Database Operations**: The SQLite engine executes synchronous database calls. In high-traffic environments, thread pools might block while waiting for disk I/O operations. *Mitigation:* Migrate the database session layer to `aiosqlite` and utilize FastAPI's async/await capabilities with SQLAlchemy `AsyncSession`.
+* **Single-User Scope**: All tasks are stored in a single table without user isolation barriers. *Mitigation:* Integrate an authentication layer using OAuth2 and JWT bearer tokens, indexing all task rows to a unique `user_id` foreign key.
+
+### 6. Production Road Map (Future Improvements)
+* **Real-Time Synchronizations**: Implement WebSockets or Server-Sent Events (SSE) to sync task and subtask modifications across multiple open browser tabs instantly.
+* **IndexedDB Offline PWA Cache**: Cache tasks using browser-based Service Workers and an IndexedDB layer. Sync local offline changes automatically when a network connection is detected.
+* **Advanced Coverage Tracking**: Integrate code coverage reporting to monitor test coverage percentage line-by-line.
