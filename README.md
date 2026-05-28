@@ -1,4 +1,4 @@
-# Full-Stack AI-Forward Task Manager (Intern Applied AI Assessment)
+# Amplify Federal Exercise: Todo List Application (Intern Assessment)
 
 A high-performance, low-latency, and secure full-stack Todo List application designed with a **FastAPI** backend, **SQLite** transactional database, and a **Vanilla JS/CSS** developer-tool frontend. 
 
